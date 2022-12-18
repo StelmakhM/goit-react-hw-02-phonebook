@@ -5,31 +5,48 @@ import { nanoid } from 'nanoid';
 
 export class App extends Component {
   state = {
-    contacts: [],
+    contacts: [
+      { id: 'id-1', name: 'Rosie Simpson', number: '459-12-56' },
+      { id: 'id-2', name: 'Hermione Kline', number: '443-89-12' },
+      { id: 'id-3', name: 'Eden Clements', number: '645-17-79' },
+      { id: 'id-4', name: 'Annie Copeland', number: '227-91-26' },
+    ],
+    filter: '',
     name: '',
     number: '',
   };
 
   onInputChange = event => {
-    console.dir(event.target.form.elements);
-    const { value } = event.target.form.elements;
-    this.setState({ name: value });
+    const { value, name } = event.target;
+    this.setState({ [name]: value });
   };
 
   onFormSubmit = event => {
     event.preventDefault();
-    this.setState(({ contacts, name }) => {
+    this.setState(({ contacts, name, number }) => {
       return {
-        contacts: [...contacts, { name, id: nanoid() }],
+        contacts: [...contacts, { name, number, id: nanoid() }],
       };
     });
   };
 
+  onSearchInputChange = searchQuery => {
+    this.setState({ filter: searchQuery });
+  };
+
+  filterContacts = () => {
+    const { contacts, filter } = this.state;
+    return contacts.filter(contact => contact.name.includes(filter));
+  };
+
   render() {
+    const filteredContacts = this.filterContacts();
     return (
       <div>
         <form onSubmit={this.onFormSubmit}>
           <label>
+            {' '}
+            Name
             <input
               type="text"
               name="name"
@@ -38,19 +55,31 @@ export class App extends Component {
               required
               onChange={this.onInputChange}
             />
-          </label>
+          </label>{' '}
+          Number
           <input
             type="tel"
             name="number"
             pattern="\+?\d{1,4}?[-.\s]?\(?\d{1,3}?\)?[-.\s]?\d{1,4}[-.\s]?\d{1,4}[-.\s]?\d{1,9}"
             title="Phone number must be digits and can contain spaces, dashes, parentheses and can start with +"
             required
+            onChange={this.onInputChange}
           />
           <button type="submit">Add contact</button>
         </form>
         <ul>
-          {this.state.contacts.map(({ id, name }) => (
-            <li key={id}>{name}</li>
+          <p>Contacts</p>
+          <input
+            type="text"
+            name="filter"
+            onChange={e => {
+              this.onSearchInputChange(e.target.value);
+            }}
+          />
+          {filteredContacts.map(({ id, name, number }) => (
+            <li key={id}>
+              {name} {number}
+            </li>
           ))}
         </ul>
       </div>
