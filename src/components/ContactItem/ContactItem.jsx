@@ -1,7 +1,9 @@
-import React, { Component } from 'react';
-
-export default class ContactItem extends Component {
-  render() {
-    return <li></li>;
-  }
+export default function ContactItem({ data }) {
+  console.log(data);
+  return (
+    <li>
+      {data.name}
+      {data.number}
+    </li>
+  );
 }
