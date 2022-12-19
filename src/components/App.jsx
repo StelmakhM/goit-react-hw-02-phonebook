@@ -14,21 +14,40 @@ export class App extends Component {
     filter: '',
   };
 
-  onSearch = searchQuery => {
-    this.setState({ filter: searchQuery });
+  normalizeValue = value => value.toLowerCase().trim();
+
+  searchContact = e => {
+    const { name, value } = e.target;
+    this.setState({ [name]: value });
+  };
+
+  addNewContact = newContact => {
+    const { contacts } = this.state;
+    const exist = contacts.some(
+      contact =>
+        this.normalizeValue(contact.name) ===
+        this.normalizeValue(newContact.name)
+    );
+    if (exist) {
+      alert('Already in list');
+      return;
+    }
+    this.setState(prevState => ({
+      contacts: [...prevState.contacts, newContact],
+    }));
   };
 
   filterContacts = () => {
     const { contacts, filter } = this.state;
-    return contacts.filter(contact => contact.name.includes(filter));
+    return contacts.filter(contact =>
+      this.normalizeValue(contact.name).includes(this.normalizeValue(filter))
+    );
   };
 
-  onAddNewContact = newContact => {
-    this.setState(prevState => {
-      return {
-        contacts: [...prevState.contacts, newContact],
-      };
-    });
+  deleteContact = id => {
+    const { contacts } = this.state;
+    const newContacts = contacts.filter(contact => contact.id !== id);
+    this.setState({ contacts: newContacts });
   };
 
   render() {
@@ -36,10 +55,16 @@ export class App extends Component {
     return (
       <div>
         <h1>Phonebook</h1>
-        <ContactForm onSubmit={this.onAddNewContact} />
+        <ContactForm onSubmit={this.addNewContact} />
         <h2>Contacts</h2>
-        <Filter onSearch={this.onSearchInputChange} />
-        <ContactList contacts={filteredContacts} />
+        <Filter
+          searchContact={this.searchContact}
+          filterValue={this.state.filter}
+        />
+        <ContactList
+          contacts={filteredContacts}
+          deleteContact={this.deleteContact}
+        />
       </div>
     );
   }
